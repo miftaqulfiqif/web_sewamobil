@@ -8,7 +8,7 @@ class Mobil extends Model
 {
     protected $table = 'mobils';
     protected $fillable = [
-        'merek',
+        'merk',
         'model',
         'no_plat',
         'tarif',
