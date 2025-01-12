@@ -98,31 +98,26 @@ class PenyewaanController extends Controller
 
     public function pengembalian(Request $request)
     {
-
         $user = Auth::user();
         $dataUser = DataUser::where('user_id', $user->id)->first();
 
-        $pinjaman = Pinjaman::where('mobil_id', $request->mobil_id)->first();
+        $pinjaman = Pinjaman::where('mobil_id', $request->mobil_id)
+            ->first();
 
         if (!$pinjaman) {
             return back()->with('error', 'Peminjaman Tidak Ditemukan')->withInput();
         }
 
-        if ($pinjaman->data_user_id !== $dataUser->id) {
-            return back()->with('error', 'Peminjaman Tidak Ditemukan')->withInput();
-        }
+        $lamanyaPinjaman = ceil(now()->diffInDays($pinjaman->tanggal_mulai));
+        $biaya = abs($lamanyaPinjaman * $pinjaman->mobil->tarif);
 
         $pinjaman->delete();
-
-        $lamanyaPinjaman = now()->diffInDays($pinjaman->tanggal_mulai);
-        $biaya = $lamanyaPinjaman * $pinjaman->mobil->tarif;
-        $pinjaman->biaya = $biaya;
 
         Riwayat::create([
             'data_user_id' => $dataUser->id,
             'mobil_id' => $pinjaman->mobil_id,
-            'pinjaman_id' => $pinjaman->id,
-            'tanggal' => now()->format('Y-m-d'),
+            'tanggal_pinjam' => $pinjaman->tanggal_mulai,
+            'tanggal_kembali' => now()->format('Y-m-d'),
             'biaya' => $biaya
         ]);
 

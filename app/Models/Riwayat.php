@@ -11,8 +11,8 @@ class Riwayat extends Model
     protected $fillable = [
         'data_user_id',
         'mobil_id',
-        'pinjaman_id',
-        'tanggal',
+        'tanggal_pinjam',
+        'tanggal_kembali',
         'biaya',
     ];
 
@@ -24,10 +24,5 @@ class Riwayat extends Model
     public function mobil()
     {
         return $this->belongsTo(Mobil::class, 'mobil_id');
-    }
-
-    public function pinjaman()
-    {
-        return $this->belongsTo(Pinjaman::class, 'pinjaman_id');
     }
 }

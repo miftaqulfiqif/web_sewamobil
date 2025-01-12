@@ -17,9 +17,8 @@ return new class extends Migration
             $table->foreign('data_user_id')->references('id')->on('data_users');
             $table->unsignedBigInteger('mobil_id');
             $table->foreign('mobil_id')->references('id')->on('mobils');
-            $table->unsignedBigInteger('pinjaman_id');
-            $table->foreign('pinjaman_id')->references('id')->on('pinjamen');
-            $table->date('tanggal');
+            $table->date('tanggal_pinjam');
+            $table->date('tanggal_kembali');
             $table->float('biaya');
             $table->timestamps();
         });

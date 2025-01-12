@@ -30,12 +30,6 @@
                     </div>
                 </a>
 
-                <a href="#">
-                    <div class="max-w-full mb-6 font-bold text-gray-500 lg:mb-8 dark:text-gray-400">
-                        <div class="btn btn-success text-2xl">Melakukan Pengembalian</div>
-                    </div>
-                </a>
-
                 <form action="/logout" method="post">
                     @csrf
                     <button type="submit" class="btn btn-error text-2xl">Log Out</button>
@@ -80,15 +74,73 @@
                                         </table>
 
                                         @if ($latestPinjaman->tanggal_selesai <= now()->format('Y-m-d'))
-                                            <div class="badge badge-warning mt-2">Melebihi batas peminjaman</div>
+                                            <div class="badge badge-warning mt-2">Waktunya Pengembalian</div>
                                         @endif
 
                                         <form action="/pengembalian" method="post">
                                             @csrf
                                             <input type="hidden" name="mobil_id" value="{{ $mobil->id }}">
-                                            <div class="card-actions justify-end mt-2">
-                                                <button type="submit" class="btn btn-accent rounded-xl">Kembalikan</button>
-                                            </div>
+                                            @php
+                                                $latestPinjaman = $mobil->pinjaman->last();
+                                                $tanggalMulai = $latestPinjaman->tanggal_mulai;
+                                                $tanggalKembali = $latestPinjaman->tanggal_selesai;
+
+                                                $lamanyaPinjaman = ceil(
+                                                    now()->diffInDays($latestPinjaman->tanggal_mulai),
+                                                );
+                                                $biaya = abs($lamanyaPinjaman * $latestPinjaman->mobil->tarif);
+
+                                            @endphp
+
+                                            @if ($latestPinjaman->tanggal_selesai <= now()->format('Y-m-d'))
+                                                <div class="card-actions justify-end mt-2">
+                                                    <button data-modal-target="popup-modal" data-modal-toggle="popup-modal"
+                                                        class="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                                                        type="button">
+                                                        Kembalikan
+                                                    </button>
+
+                                                    <div id="popup-modal" tabindex="-1"
+                                                        class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full h-full">
+                                                        <div class="relative p-4 w-full max-w-md max-h-full">
+                                                            <div class="relative bg-white rounded-lg shadow">
+
+                                                                <div class="p-4 text-center">
+                                                                    <h3 class="text-lg font-normal text-gray-500">
+                                                                        Anda akan melakukan pengembalian mobil
+                                                                    </h3>
+                                                                    <div class="text-black">
+                                                                        <p>{{ $mobil->merk }}</p>
+                                                                        <p>{{ $mobil->no_plat }}</p>
+                                                                        <p class="mb-5">Total Biaya : Rp.
+                                                                            {{ number_format($biaya, 0, ',', '.') }}
+                                                                        </p>
+                                                                    </div>
+
+                                                                    <button data-modal-hide="popup-modal" type="submit"
+                                                                        class="text-white bg-red-600 hover:bg-red-800 font-medium rounded-lg text-sm px-5 py-2.5">
+                                                                        Yes, I'm sure
+                                                                    </button>
+                                                                    <button data-modal-hide="popup-modal" type="button"
+                                                                        class="text-gray-500 bg-white border rounded-lg text-sm px-5 py-2.5">
+                                                                        No, cancel
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.5/flowbite.min.js"></script>
+
+                                                </div>
+                                            @else
+                                                <div class="card-actions justify-end mt-2">
+                                                    <button type="submit" class="btn btn-accent rounded-xl"
+                                                        disabled>Kembalikan</button>
+                                                </div>
+                                            @endif
+
+
                                         </form>
                                     </div>
                                 </div>
@@ -138,10 +190,10 @@
                                             {{ $riwayat->mobil->no_plat }}
                                         </td>
                                         <td class="px-6 py-4">
-                                            {{ $riwayat->pinjam->tanggal_mulai }}
+                                            {{ $riwayat->tanggal_pinjam }}
                                         </td>
                                         <td class="px-6 py-4">
-                                            {{ $riwayat->tanggal_selesai }}
+                                            {{ $riwayat->tanggal_kembali }}
                                         </td>
                                         <td class="px-6 py-4">
                                             Rp. {{ number_format($riwayat->biaya, 0, ',', '.') }}
@@ -159,4 +211,6 @@
 @endsection
 
 @section('script')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.5/flowbite.min.js"></script>
+
 @endsection

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->date('tanggal_pengembalian');
             $table->integer('biaya_sewa');
             $table->unsignedBigInteger('pinjaman_id');
-            $table->foreign('pinjaman_id')->references('id')->on('pinjamen');
+            $table->foreign('pinjaman_id')->references('id')->on('pinjamans');
             $table->unsignedBigInteger('data_user_id');
             $table->foreign('data_user_id')->references('id')->on('data_users');
             $table->unsignedBigInteger('mobil_id');
