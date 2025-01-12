@@ -8,9 +8,11 @@
     <section class="bg-white  dark:bg-gray-900 mx-auto lg:mx-20">
         <div class="container flex flex-col justify-center px-6 py-8 mx-auto">
             <div class="max-w-full mb-6 font-bold text-gray-500 lg:mb-8 dark:text-gray-400">
-                <p class="text-4xl text-center">
-                    Aplikasi Penyewaan Mobil
-                </p>
+                <a href="/dashboard">
+                    <p class="text-4xl text-center">
+                        Aplikasi Penyewaan Mobil
+                    </p>
+                </a>
             </div>
             <div class="max-w-full mb-6 font-bold text-gray-500 lg:mb-8 dark:text-gray-400">
                 <p class="text-3xl mb-2">
@@ -56,39 +58,13 @@
 
             <div class="max-w-full mb-6 font-bold text-gray-500 lg:mb-8 dark:text-gray-400">
                 <p class="text-2xl text-center mb-6">
-                    Mobil Yang Tersedia Untuk Hari Ini
+                    Mobil Yang Tersedia
                 </p>
                 <div class="flex gap-6">
                     <div class="overflow-x-auto mx-auto">
                         <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
-                            @if ($request->tanggal_mulai && $request->tanggal_selesai)
-                                @if ($availableMobil)
-                                    @foreach ($availableMobil as $mobil)
-                                        <div class="card bg-base-100 w-auto shadow-xl">
-                                            <figure>
-                                                <img src="https://auto2000.co.id/berita-dan-tips/_next/image?url=https%3A%2F%2Fastradigitaldigiroomuat.blob.core.windows.net%2Fstorage-uat-001%2Fmobil-offroad.jpg&w=800&q=75"
-                                                    alt="Shoes" />
-                                            </figure>
-                                            <div class="card-body">
-                                                <h2 class="card-title">
-                                                    Nama Merk
-                                                    <div class="badge badge-primary">Model</div>
-                                                </h2>
-                                                <p>AB 1234 CE</p>
-                                                <p class="badge badge-info">Rp. 500.000 /hari</p>
-
-
-                                                <div class="card-actions justify-end mt-2">
-                                                    <div class="btn btn-accent rounded-xl">Lakukan Peminjaman</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                @else
-                                    <p class="text-center">Tidak Ada Mobil Yang Tersedia Untuk Hari Ini</p>
-                                @endif
-                            @elseif ($semuaMobil)
-                                @foreach ($semuaMobil as $mobil)
+                            @if ($mobilTersedia)
+                                @foreach ($mobilTersedia as $mobil)
                                     <div class="card bg-base-100 w-auto shadow-xl">
                                         <figure>
                                             <img src="https://auto2000.co.id/berita-dan-tips/_next/image?url=https%3A%2F%2Fastradigitaldigiroomuat.blob.core.windows.net%2Fstorage-uat-001%2Fmobil-offroad.jpg&w=800&q=75"
@@ -100,16 +76,25 @@
                                                 <div class="badge badge-primary">{{ $mobil->model }}</div>
                                             </h2>
                                             <p>{{ $mobil->no_plat }}</p>
-                                            <p class="badge badge-info">Rp. {{ $mobil->harga_sewa }} /hari</p>
+                                            <p class="badge badge-info">Rp. {{ number_format($mobil->tarif, 0, ',', '.') }}
+                                                /hari</p>
 
-                                            <div class="card-actions justify-end mt-2">
-                                                <div class="btn btn-accent rounded-xl">Lakukan Peminjaman</div>
-                                            </div>
+                                            <form action="/peminjaman/pinjam" method="post">
+                                                @csrf
+                                                <input type="hidden" name="data_user_id" value="{{ $dataUser->id }}">
+                                                <input type="hidden" name="mobil_id" value="{{ $mobil->id }}"></input>
+                                                <input type="hidden" name="tanggal_pinjam" value="{{ $tanggalPinjam }}">
+                                                <input type="hidden" name="tanggal_kembali" value="{{ $tanggalKembali }}">
+                                                <div class="card-actions justify-end mt-2">
+                                                    <button type="submit" class="btn btn-accent rounded-xl">Lakukan
+                                                        Peminjaman</button>
+                                                </div>
+                                            </form>
                                         </div>
                                     </div>
                                 @endforeach
                             @else
-                                <p class="text-center">Tidak Ada Mobil Yang Tersedia Untuk Hari Ini</p>
+                                <p>Mobil Tidak Tersedia silahkan pilih tanggal lain</p>
                             @endif
                         </div>
                     </div>

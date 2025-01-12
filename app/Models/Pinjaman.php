@@ -11,7 +11,7 @@ class Pinjaman extends Model
         'mobil_id',
         'data_user_id',
         'tanggal_mulai',
-        'tangagal_selesai',
+        'tanggal_selesai',
     ];
 
     public function mobil()
