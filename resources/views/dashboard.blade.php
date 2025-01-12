@@ -49,7 +49,7 @@
                 <div class="flex gap-6">
                     <div class="overflow-x-auto mx-auto">
                         <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
-                            @for ($i = 0; $i < 4; $i++)
+                            @foreach ($mobils as $mobil)
                                 <div class="card bg-base-100 w-auto shadow-xl">
                                     <figure>
                                         <img src="https://auto2000.co.id/berita-dan-tips/_next/image?url=https%3A%2F%2Fastradigitaldigiroomuat.blob.core.windows.net%2Fstorage-uat-001%2Fmobil-offroad.jpg&w=800&q=75"
@@ -57,29 +57,42 @@
                                     </figure>
                                     <div class="card-body">
                                         <h2 class="card-title">
-                                            Nama Merk
-                                            <div class="badge badge-primary">Model</div>
+                                            {{ $mobil->merk }}
+                                            <div class="badge badge-primary">{{ $mobil->model }}</div>
                                         </h2>
-                                        <p>AB 1234 CE</p>
+                                        <p>{{ $mobil->no_plat }}</p>
                                         <table class="items-center max-w-full text-center border">
                                             <tr>
                                                 <th class="border">Tanggal Peminjaman</th>
                                                 <th>Tanggal Pengembalian</th>
                                             </tr>
                                             <tr>
-                                                <td class="border">23 Oktober 2020</td>
-                                                <td class="border">23 Oktober 2020</td>
+                                                @php
+                                                    $latestPinjaman = $mobil->pinjaman->last();
+                                                @endphp
+                                                @if ($latestPinjaman)
+                                                    <td class="border">{{ $latestPinjaman->tanggal_mulai }}</td>
+                                                    <td class="border">{{ $latestPinjaman->tanggal_selesai }}</td>
+                                                @else
+                                                    <td colspan="2" class="border">Belum ada pinjaman</td>
+                                                @endif
                                             </tr>
                                         </table>
 
-                                        <div class="badge badge-warning mt-2">Melebihi batas peminjaman</div>
+                                        @if ($latestPinjaman->tanggal_selesai <= now()->format('Y-m-d'))
+                                            <div class="badge badge-warning mt-2">Melebihi batas peminjaman</div>
+                                        @endif
 
-                                        <div class="card-actions justify-end mt-2">
-                                            <div class="btn btn-accent rounded-xl">Kembalikan</div>
-                                        </div>
+                                        <form action="/pengembalian" method="post">
+                                            @csrf
+                                            <input type="hidden" name="mobil_id" value="{{ $mobil->id }}">
+                                            <div class="card-actions justify-end mt-2">
+                                                <button type="submit" class="btn btn-accent rounded-xl">Kembalikan</button>
+                                            </div>
+                                        </form>
                                     </div>
                                 </div>
-                            @endfor
+                            @endforeach
                         </div>
                     </div>
                 </div>
@@ -92,9 +105,6 @@
                             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                                 <tr>
                                     <th scope="col" class="px-6 py-3">
-                                        Tanggal
-                                    </th>
-                                    <th scope="col" class="px-6 py-3">
                                         Merk
                                     </th>
                                     <th scope="col" class="px-6 py-3">
@@ -104,30 +114,40 @@
                                         Nomor Polisi
                                     </th>
                                     <th scope="col" class="px-6 py-3">
+                                        Tanggal Peminjaman
+                                    </th>
+                                    <th scope="col" class="px-6 py-3">
+                                        Tanggal Pengembalian
+                                    </th>
+                                    <th scope="col" class="px-6 py-3">
                                         Biaya
                                     </th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                                    <td scope="row"
-                                        class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        23 Oktober 2020
-                                    </td>
-                                    <th class="px-6 py-4 ">
-                                        Avansa
-                                    </th>
-                                    <td class="px-6 py-4">
-                                        Pribadi
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        AS 1234 BE
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        Rp. 500.000
-                                    </td>
-                                </tr>
-
+                                @foreach ($riwayats as $riwayat)
+                                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                                        <td scope="row"
+                                            class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                            {{ $riwayat->mobil->merk }}
+                                        </td>
+                                        <th class="px-6 py-4 ">
+                                            {{ $riwayat->mobil->model }}
+                                        </th>
+                                        <td class="px-6 py-4">
+                                            {{ $riwayat->mobil->no_plat }}
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            {{ $riwayat->pinjam->tanggal_mulai }}
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            {{ $riwayat->tanggal_selesai }}
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            Rp. {{ number_format($riwayat->biaya, 0, ',', '.') }}
+                                        </td>
+                                    </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>

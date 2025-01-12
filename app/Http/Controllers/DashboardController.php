@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\DataUser;
+use App\Models\Mobil;
+use App\Models\Pinjaman;
+use App\Models\Riwayat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,6 +20,14 @@ class DashboardController extends Controller
             abort(404);
         }
 
-        return view('dashboard', compact('dataUser'));
+        $dataPinjaman = Pinjaman::where('data_user_id', $dataUser->id)->get();
+        $mobilIds = $dataPinjaman->pluck('mobil_id')->unique();
+        $mobils = Mobil::whereIn('id', $mobilIds)->get();
+
+        $tanggalMulai = $mobils->pluck('tanggal_mulai')->unique();
+
+        $riwayats = Riwayat::where('data_user_id', $dataUser->id)->get();
+
+        return view('dashboard', compact('dataUser', 'dataPinjaman', 'mobils', 'riwayats'));
     }
 }
